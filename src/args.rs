@@ -12,7 +12,7 @@ pub struct Args {
     /// Target ip
     pub ip: std::net::Ipv4Addr,
 
-    #[arg(short, long)]
+    #[arg(short, long, value_delimiter=',')]
     /// Target port
-    pub port: u16
+    pub ports: Vec<u16>,
 }

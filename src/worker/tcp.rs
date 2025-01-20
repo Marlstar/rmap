@@ -1,29 +1,28 @@
-use std::net::{Ipv4Addr, SocketAddrV4};
 use std::net::TcpStream;
-use super::TcpResult;
+use crate::worker::TcpResult;
+use crate::Task;
 
 pub struct TcpChecker {
-    addr: SocketAddrV4
+    task: Task
 }
 impl TcpChecker { // Constructors
-    pub fn new(ip: Ipv4Addr, port: u16) -> Self {
-        Self {
-            addr: SocketAddrV4::new(ip, port)
-        }
+    pub fn new(task: Task) -> Self {
+        Self { task }
     }
 }
 impl TcpChecker {
     pub fn check(&self) -> TcpResult {
-        let connection_result = TcpStream::connect(self.addr);
+        let addr = self.task.addr;
+        let connection_result = TcpStream::connect(addr);
 
         let tcp = match connection_result {
             // In future this could pass the tcp stream off to do some analysis
             Ok(a) => a,
-            Err(_) => return TcpResult::Closed
+            Err(_) => return TcpResult::Closed(self.task.uuid)
         };
 
         let _ = tcp.shutdown(std::net::Shutdown::Both);
-        return TcpResult::Open;
+        return TcpResult::Open(self.task.uuid);
     }
 }
 

@@ -1,5 +1,7 @@
+use uuid::Uuid;
+
 #[derive(Debug, Clone)]
 pub enum TcpResult {
-    Open,
-    Closed
+    Open(Uuid),
+    Closed(Uuid),
 }
