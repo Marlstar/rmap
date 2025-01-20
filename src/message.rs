@@ -5,5 +5,6 @@ pub enum WorkerMessage {
 }
 
 pub enum ManagerMessage {
-    Task(Task)
+    Task(Task),
+    Exit
 }

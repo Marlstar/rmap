@@ -18,11 +18,11 @@ impl TcpChecker {
         let tcp = match connection_result {
             // In future this could pass the tcp stream off to do some analysis
             Ok(a) => a,
-            Err(_) => return TcpResult::Closed(self.task.uuid)
+            Err(_) => return TcpResult::Closed
         };
 
         let _ = tcp.shutdown(std::net::Shutdown::Both);
-        return TcpResult::Open(self.task.uuid);
+        return TcpResult::Open;
     }
 }
 

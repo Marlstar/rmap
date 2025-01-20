@@ -4,18 +4,19 @@ pub use tcp::TcpChecker;
 mod tcp_result;
 pub use tcp_result::TcpResult;
 // ================
-use crate::{WorkerMessage, ManagerMessage, Task, TaskResult};
+use crate::{ManagerMessage, Task, TaskResult, WorkerMessage};
 use std::sync::mpsc;
 
+#[derive(Debug)]
 pub struct Worker {
-    comms_tx: mpsc::SyncSender<WorkerMessage>,
-    comms_rx: mpsc::Receiver<ManagerMessage>,
-    results_tx: mpsc::SyncSender<TaskResult>
+    comms_tx: crate::WorkerTX,
+    comms_rx: crate::WorkerRX,
+    results_tx: crate::ResultsTX
 }
 impl Worker { // Constructors
-    pub fn new(results_tx: mpsc::SyncSender<TaskResult>) -> (Self, mpsc::SyncSender<ManagerMessage>, mpsc::Receiver<WorkerMessage>) {
-        let (manager_comms_tx, comms_rx) = mpsc::sync_channel::<ManagerMessage>(3);
-        let (comms_tx, manager_comms_rx) = mpsc::sync_channel::<WorkerMessage>(3);
+    pub fn new(results_tx: crate::ResultsTX) -> (Self, crate::ManagerTX, crate::ManagerRX) {
+        let (manager_comms_tx, comms_rx) = mpsc::sync_channel(3);
+        let (comms_tx, manager_comms_rx) = mpsc::sync_channel(3);
 
         let worker = Worker {
             comms_tx,
@@ -27,7 +28,7 @@ impl Worker { // Constructors
     }
 }
 impl Worker {
-    pub fn main(&self) {
+    pub fn run(&self) {
         'main: loop {
             let msg = match self.comms_rx.try_recv() {
                 Ok(a) => a,
@@ -36,7 +37,8 @@ impl Worker {
                         continue 'main;
                     },
                     mpsc::TryRecvError::Disconnected => {
-                        panic!("manager sender died!")
+                        eprintln!("Manager sender died, worker exiting!");
+                        return;
                     }
                 }
             };
@@ -44,7 +46,11 @@ impl Worker {
             match msg {
                 ManagerMessage::Task(task) => {
                     let _ = self.results_tx.send(Self::run_task(task));
+                    let _ = self.comms_tx.send(WorkerMessage::Done);
                 },
+                ManagerMessage::Exit => {
+                    break 'main;
+                }
             }
         }
     }
