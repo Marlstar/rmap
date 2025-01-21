@@ -10,7 +10,8 @@ use clap::Parser;
 )]
 pub struct Args {
     /// Target ip
-    pub ip: std::net::Ipv4Addr,
+    #[arg(value_delimiter=',')]
+    pub ips: Vec<std::net::Ipv4Addr>,
 
     #[arg(short, long, value_delimiter=',')]
     /// Target port
