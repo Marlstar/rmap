@@ -2,6 +2,10 @@
 name = "rmap"
 version = "0.1.0"
 edition = "2021"
+authors = ["Marley <marley@marlstar.com>"]
+description = "A simple TCP portscanner"
+homepage = "https://github.com/Marlstar/rmap"
+repository = "https://github.com/Marlstar/rmap"
 
 [dependencies]
 hashbrown = "*"
@@ -14,3 +18,8 @@ features = ["derive"]
 [dependencies.uuid]
 version = "1"
 features = ["v4", "fast-rng"]
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
