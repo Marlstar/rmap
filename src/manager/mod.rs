@@ -147,11 +147,10 @@ impl Manager { // Main running logic
 
     fn assign_tasks(&mut self) {
         let num_free = self.free.len();
-        let num_tasks = self.tasks.len();
+        let num_tasks = self.todo.len();
         let num_assignments = num_free.min(num_tasks);
 
         for _ in 0..num_assignments {
-            // TODO: breaking here
             let worker = self.free.pop().unwrap();
             let task = self.todo.pop().unwrap();
             self.assign_worker(worker, task);
