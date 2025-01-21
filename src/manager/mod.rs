@@ -5,7 +5,9 @@ use std::{net::{Ipv4Addr, SocketAddrV4}, sync::mpsc::sync_channel};
 
 use hashbrown::{HashMap, HashSet};
 use uuid::Uuid;
-use crate::{worker::TcpResult, ManagerMessage, Task, Worker, WorkerMessage};
+use crate::{worker::TcpResult, ManagerMessage, Task, TaskResult, Worker, WorkerMessage};
+
+use colored::Colorize;
 
 #[derive(Debug)]
 pub struct Manager {
@@ -131,18 +133,26 @@ impl Manager { // Main running logic
 
     fn receive_results(&mut self) {
         while let Ok(result) = self.results_rx.try_recv() {
-            println!(
-                "{} {}",
-                self.tasks.get(&result.uuid).unwrap().addr,
-                match result.result {
-                    TcpResult::Open => "OPEN",
-                    TcpResult::Closed => "CLOSED"
-                }
-            );
+            self.output_result(&result);
             self.assigned.remove(&result.uuid);
             self.done.insert(result.uuid);
             self.results.insert(result.uuid, result.result);
         }
+    }
+
+    fn output_result(&self, result: &TaskResult) {
+        let addr = self.tasks.get(&result.uuid).unwrap().addr;
+        let ip = addr.ip().to_string().white();
+        let port = addr.port().to_string().bright_magenta();
+        let spacing_len = 23 - addr.to_string().chars().count();
+        let spacing: String = (0..=spacing_len).map(|_| ' ').collect();
+        println!(
+            "{ip}:{port}{spacing}{}",
+            match result.result {
+                TcpResult::Open => "OPEN".bright_green(),
+                TcpResult::Closed => "CLOSED".bright_red(),
+            }
+        );
     }
 
     fn assign_tasks(&mut self) {
