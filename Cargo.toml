@@ -6,6 +6,7 @@ authors = ["Marley <marley@marlstar.com>"]
 description = "A simple TCP portscanner"
 homepage = "https://github.com/Marlstar/rmap"
 repository = "https://github.com/Marlstar/rmap"
+keywords = ["port", "scanning"]
 
 [dependencies]
 hashbrown = "*"
