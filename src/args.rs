@@ -21,3 +21,13 @@ pub struct Args {
     /// Worker pool size
     pub pool_size: usize,
 }
+impl Args {
+    pub fn get() -> &'static Self {
+        use std::sync::OnceLock;
+        static ARGS: OnceLock<Args> = OnceLock::new();
+
+        let _ = ARGS.get_or_init(Args::parse);
+
+        return ARGS.get().unwrap();
+    }
+}

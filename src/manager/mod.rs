@@ -22,13 +22,19 @@ pub struct Manager {
     results_rx: crate::ResultsRX,
     results: HashMap<Uuid, TcpResult>
 }
+impl Default for Manager {
+    fn default() -> Self {
+        return Self::new();
+    }
+}
 impl Manager { // Constructor and its functions
-    pub fn new(ips: Vec<Ipv4Addr>, ports: Vec<u16>, pool_size: usize) -> Self {
+    pub fn new() -> Self {
+        let args = crate::Args::get();
         // Generate the tasks
-        let tasks = Self::create_tasks(ips, ports);
+        let tasks = Self::create_tasks(&args.ips, &args.ports);
         let num_tasks = tasks.len();
         // Auto-shrink the pool size if there are more workers than tasks
-        let pool_size = if pool_size > tasks.len() { tasks.len() } else { pool_size };
+        let pool_size = if args.pool_size > tasks.len() { tasks.len() } else { args.pool_size };
 
         let (results_tx, results_rx) = sync_channel(pool_size);
 
@@ -67,12 +73,12 @@ impl Manager { // Constructor and its functions
         return manager;
     }
 
-    fn create_tasks(ips: Vec<Ipv4Addr>, ports: Vec<u16>) -> Vec<Task> {
+    fn create_tasks(ips: &Vec<Ipv4Addr>, ports: &Vec<u16>) -> Vec<Task> {
         let mut tasks: Vec<Task> = Vec::with_capacity(ips.len() * ports.len());
 
         for ip in ips {
-            for port in &ports {
-                tasks.push(Self::create_task(ip, *port));
+            for port in ports {
+                tasks.push(Self::create_task(*ip, *port));
             }
         }
 
@@ -95,7 +101,6 @@ impl Manager { // Main running logic
             self.receive_results();
             self.assign_tasks();
         }
-        println!("DONE!");
         self.exit();
     }
 
