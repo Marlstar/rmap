@@ -1,6 +1,6 @@
 [package]
 name = "rmap"
-version = "0.2.1"
+version = "0.3.0"
 edition = "2021"
 authors = ["Marley <marley@marlstar.com>"]
 description = "A simple TCP portscanner"
@@ -11,6 +11,7 @@ keywords = ["port", "scanning"]
 [dependencies]
 hashbrown = "*"
 colored = "*"
+parse_duration = "*"
 
 [dependencies.clap]
 version = "4"

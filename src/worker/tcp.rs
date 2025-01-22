@@ -1,8 +1,10 @@
 use std::io::Read;
 use std::net::TcpStream;
 use std::time::Duration;
+
 use crate::worker::TcpResult;
 use crate::Task;
+use crate::Args;
 
 pub struct TcpChecker {
     task: Task
@@ -27,7 +29,7 @@ impl TcpChecker {
         let mut buf = String::new();
 
         'read: {
-            if tcp.set_read_timeout(Some(Duration::from_secs(1))).is_err() {break 'read;};
+            if tcp.set_read_timeout(Some(*Args::get().read_timeout)).is_err() {break 'read;};
             if tcp.read_to_string(&mut buf).is_err() { break 'read }
         }
 
