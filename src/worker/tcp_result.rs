@@ -1,5 +1,5 @@
 #[derive(Debug, Clone)]
 pub enum TcpResult {
-    Open,
+    Open{ response: String },
     Closed,
 }

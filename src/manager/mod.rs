@@ -146,11 +146,12 @@ impl Manager { // Main running logic
         let port = addr.port().to_string().bright_magenta();
         let spacing_len = 23 - addr.to_string().chars().count();
         let spacing: String = (0..=spacing_len).map(|_| ' ').collect();
+
         println!(
             "{ip}:{port}{spacing}{}",
-            match result.result {
-                TcpResult::Open => "OPEN".bright_green(),
-                TcpResult::Closed => "CLOSED".bright_red(),
+            match &result.result {
+                TcpResult::Open{ response: r} => format!("{}    {}", "OPEN".bright_green(), r.trim()),
+                TcpResult::Closed => "CLOSED".bright_red().to_string(),
             }
         );
     }
